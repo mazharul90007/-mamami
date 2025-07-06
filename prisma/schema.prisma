@@ -7,3 +7,55 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  password          String
+  isEmailVerified   Boolean  @default(false)
+  isAccountVerified Boolean  @default(false)
+  imageVerified     Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Profile information
+  gender            Gender?
+  interestedIn      InterestedIn?
+  heightFeet        Int?
+  heightInches      Int?
+  
+  // Location information
+  address           String?
+  city              String?
+  state             String?
+  zipCode           String?
+  
+  // Identity verification
+  idType            IdType?
+  idPhotoUrl        String?
+  profilePhotoUrl   String?
+  
+  // Timestamps for verification
+  emailVerifiedAt   DateTime?
+  accountVerifiedAt DateTime?
+  imageVerifiedAt   DateTime?
+
+  @@map("users")
+}
+
+enum Gender {
+  WOMEN
+  MEN
+  NONBINARY
+}
+
+enum InterestedIn {
+  WOMEN
+  MEN
+  BOTH
+}
+
+enum IdType {
+  NATIONAL_ID
+  PASSPORT
+}
