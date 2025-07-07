@@ -9,7 +9,13 @@ http://localhost:5000/api/v1
 ```
 
 ## Authentication
-Most endpoints require authentication using JWT Bearer tokens. Include the token in the Authorization header:
+Most endpoints require authentication using JWT tokens. The API supports two methods:
+
+### 1. Cookie-based Authentication (Recommended)
+Tokens are automatically sent via HTTP-only cookies. No additional setup required.
+
+### 2. Authorization Header (Fallback)
+Include the token in the Authorization header:
 ```
 Authorization: Bearer <your_access_token>
 ```
@@ -25,7 +31,22 @@ Content-Type: application/json
 
 {
   "email": "user@example.com",
-  "password": "password123"
+  "password": "password123",
+  "name": "John Doe",
+  "gender": "women",
+  "interestedIn": "both",
+  "heightFeet": 5,
+  "heightInches": 7,
+  "address": "123 Main St",
+  "city": "New York",
+  "state": "NY",
+  "zipCode": "10001",
+  "profilePhotoUrl": "https://example.com/photo.jpg",
+  "birthday": "1990-01-01T00:00:00.000Z",
+  "bio": "I love traveling and meeting new people!",
+  "relationshipStatus": "single",
+  "language": ["English", "Spanish"],
+  "work": "Software Engineer"
 }
 ```
 
@@ -35,27 +56,36 @@ Content-Type: application/json
   "success": true,
   "message": "User created successfully",
   "data": {
-    "id": "user_id",
-    "email": "user@example.com",
-    "isEmailVerified": false,
-    "isAccountVerified": false,
-    "imageVerified": false,
-    "gender": null,
-    "interestedIn": null,
-    "heightFeet": null,
-    "heightInches": null,
-    "address": null,
-    "city": null,
-    "state": null,
-    "zipCode": null,
-    "idType": null,
-    "idPhotoUrl": null,
-    "profilePhotoUrl": null,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "user": {
+      "id": "user_id",
+      "email": "user@example.com",
+      "name": "John Doe",
+      "isActive": true,
+      "canChangePassword": true,
+      "gender": "women",
+      "interestedIn": "both",
+      "heightFeet": 5,
+      "heightInches": 7,
+      "address": "123 Main St",
+      "city": "New York",
+      "state": "NY",
+      "zipCode": "10001",
+      "profilePhotoUrl": "https://example.com/photo.jpg",
+      "birthday": "1990-01-01T00:00:00.000Z",
+      "bio": "I love traveling and meeting new people!",
+      "relationshipStatus": "single",
+      "language": ["English", "Spanish"],
+      "work": "Software Engineer",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
   }
 }
 ```
+
+**Cookies Set:**
+- `accessToken`: HTTP-only cookie with 1-day expiry
+- `refreshToken`: HTTP-only cookie with 7-day expiry
 
 #### Login User
 ```http
@@ -188,14 +218,33 @@ Authorization: Bearer <token>
 Content-Type: application/json
 
 {
-  "gender": "WOMEN"
+  "gender": "women"
 }
 ```
 
 **Gender Options:**
-- `WOMEN`
-- `MEN`
-- `NONBINARY`
+- `women`
+- `men`
+- `nonbinary`
+
+#### Update Relationship Status
+```http
+PATCH /user/relationship-status
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "relationshipStatus": "single"
+}
+```
+
+**Relationship Status Options:**
+- `single`
+- `in_relationship`
+- `married`
+- `divorced`
+- `widowed`
+- `complicated`
 
 #### Update Interest Preference
 ```http
@@ -204,14 +253,14 @@ Authorization: Bearer <token>
 Content-Type: application/json
 
 {
-  "interestedIn": "BOTH"
+  "interestedIn": "both"
 }
 ```
 
 **Interest Options:**
-- `WOMEN`
-- `MEN`
-- `BOTH`
+- `women`
+- `men`
+- `both`
 
 #### Update Height
 ```http

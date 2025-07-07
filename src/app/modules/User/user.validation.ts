@@ -1,105 +1,67 @@
 import { z } from 'zod';
 
-export const createUserZodSchema = z.object({
+// User profile update validation
+export const updateUserProfileZodSchema = z.object({
   body: z.object({
-    email: z
-      .string({
-        required_error: 'Email is required',
-      })
-      .email('Invalid email format'),
-    password: z
-      .string({
-        required_error: 'Password is required',
-      })
-      .min(6, 'Password must be at least 6 characters'),
-  }),
-});
-
-export const loginUserZodSchema = z.object({
-  body: z.object({
-    email: z
-      .string({
-        required_error: 'Email is required',
-      })
-      .email('Invalid email format'),
-    password: z
-      .string({
-        required_error: 'Password is required',
-      }),
-  }),
-});
-
-export const updateIdVerificationZodSchema = z.object({
-  body: z.object({
-    idType: z.enum(['NATIONAL_ID', 'PASSPORT'], {
-      required_error: 'ID type is required',
-    }),
-    idPhotoUrl: z.string({
-      required_error: 'ID photo URL is required',
-    }),
-    profilePhotoUrl: z.string({
-      required_error: 'Profile photo URL is required',
-    }),
-    imageVerified: z.boolean({
-      required_error: 'Image verification status is required',
-    }),
-  }),
-});
-
-export const updateGenderZodSchema = z.object({
-  body: z.object({
-    gender: z.enum(['WOMEN', 'MEN', 'NONBINARY'], {
-      required_error: 'Gender is required',
-    }),
-  }),
-});
-
-export const updateInterestedInZodSchema = z.object({
-  body: z.object({
-    interestedIn: z.enum(['WOMEN', 'MEN', 'BOTH'], {
-      required_error: 'Interest preference is required',
-    }),
-  }),
-});
-
-export const updateHeightZodSchema = z.object({
-  body: z.object({
+    name: z
+      .string()
+      .min(1, 'Name cannot be empty')
+      .optional(),
+    gender: z
+      .enum(['women', 'men', 'nonbinary'])
+      .optional(),
+    interestedIn: z
+      .enum(['women', 'men', 'both'])
+      .optional(),
     heightFeet: z
-      .number({
-        required_error: 'Height in feet is required',
-      })
+      .number()
       .min(3, 'Height must be at least 3 feet')
-      .max(8, 'Height cannot exceed 8 feet'),
+      .max(8, 'Height cannot exceed 8 feet')
+      .optional(),
     heightInches: z
-      .number({
-        required_error: 'Height in inches is required',
-      })
+      .number()
       .min(0, 'Height in inches must be at least 0')
-      .max(11, 'Height in inches cannot exceed 11'),
-  }),
-});
-
-export const updateLocationZodSchema = z.object({
-  body: z.object({
+      .max(11, 'Height in inches cannot exceed 11')
+      .optional(),
+    birthday: z
+      .string()
+      .datetime('Invalid birthday format')
+      .optional(),
+    bio: z
+      .string()
+      .max(500, 'Bio cannot exceed 500 characters')
+      .optional(),
+    relationshipStatus: z
+      .enum(['single', 'in_relationship', 'married', 'divorced', 'widowed', 'complicated'])
+      .optional(),
+    language: z
+      .array(z.string().min(1, 'Language cannot be empty'))
+      .min(1, 'At least one language is required')
+      .optional(),
+    work: z
+      .string()
+      .max(100, 'Work cannot exceed 100 characters')
+      .optional(),
     address: z
-      .string({
-        required_error: 'Address is required',
-      })
-      .min(1, 'Address cannot be empty'),
+      .string()
+      .min(1, 'Address cannot be empty')
+      .optional(),
     city: z
-      .string({
-        required_error: 'City is required',
-      })
-      .min(1, 'City cannot be empty'),
+      .string()
+      .min(1, 'City cannot be empty')
+      .optional(),
     state: z
-      .string({
-        required_error: 'State is required',
-      })
-      .min(1, 'State cannot be empty'),
+      .string()
+      .min(1, 'State cannot be empty')
+      .optional(),
     zipCode: z
-      .string({
-        required_error: 'Zip code is required',
-      })
-      .regex(/^\d{5}(-\d{4})?$/, 'Invalid zip code format'),
+      .string()
+      .min(1, 'Zip code cannot be empty')
+      .max(20, 'Zip code cannot exceed 20 characters')
+      .optional(),
+    profilePhotoUrl: z
+      .string()
+      .min(1, 'Profile photo URL cannot be empty')
+      .optional(),
   }),
 }); 

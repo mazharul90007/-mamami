@@ -4,19 +4,26 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id                String   @id @default(cuid())
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
   email             String   @unique
   password          String
-  isEmailVerified   Boolean  @default(false)
-  isAccountVerified Boolean  @default(false)
-  imageVerified     Boolean  @default(false)
+  name              String
+  isActive          Boolean  @default(true)
+  canChangePassword Boolean  @default(true)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+
+  // OTP for password reset and verification
+  otp               String?
+  otpExpiresAt      DateTime?
+  
+  // Refresh token for authentication
+  refreshToken      String?
 
   // Profile information
   gender            Gender?
@@ -24,38 +31,42 @@ model User {
   heightFeet        Int?
   heightInches      Int?
   
+  // Optional profile information
+  birthday          DateTime?
+  bio               String?
+  relationshipStatus RelationshipStatus?
+  language          String[] // Array of languages
+  work              String?
+  
   // Location information
   address           String?
   city              String?
   state             String?
   zipCode           String?
   
-  // Identity verification
-  idType            IdType?
-  idPhotoUrl        String?
+  // Profile picture
   profilePhotoUrl   String?
-  
-  // Timestamps for verification
-  emailVerifiedAt   DateTime?
-  accountVerifiedAt DateTime?
-  imageVerifiedAt   DateTime?
 
   @@map("users")
 }
 
 enum Gender {
-  WOMEN
-  MEN
-  NONBINARY
+  women
+  men
+  nonbinary
 }
 
 enum InterestedIn {
-  WOMEN
-  MEN
-  BOTH
+  women
+  men
+  both
 }
 
-enum IdType {
-  NATIONAL_ID
-  PASSPORT
+enum RelationshipStatus {
+  single
+  in_relationship
+  married
+  divorced
+  widowed
+  complicated
 }

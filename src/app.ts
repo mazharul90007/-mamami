@@ -1,5 +1,6 @@
 import express, { Application, NextFunction, Request, Response } from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import httpStatus from "http-status";
 import path from "path";
 import router from "./app/routes";
@@ -18,6 +19,7 @@ app.use(
 //parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.get("/", (req: Request, res: Response) => {
   res.send({
