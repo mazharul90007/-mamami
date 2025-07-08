@@ -1,4 +1,5 @@
 import { Gender, InterestedIn, RelationshipStatus } from '../../../generated/prisma';
+import { Mood } from '../utils/generateMoods';
 
 export type IUser = {
   id: string;
@@ -68,6 +69,7 @@ export type IUpdateUser = {
   city?: string;
   state?: string;
   zipCode?: string;
+  feelingToday?: Mood[];
   profilePhotoUrl?: string;
 };
 
@@ -90,6 +92,7 @@ export type IUserResponse = {
   city: string | null;
   state: string | null;
   zipCode: string | null;
+  feelingToday: Mood[];
   profilePhotoUrl: string | null;
   createdAt: Date;
   updatedAt: Date;

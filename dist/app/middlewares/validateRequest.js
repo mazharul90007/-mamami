@@ -13,6 +13,8 @@ const validateRequest = (schema) => (req, res, next) => __awaiter(void 0, void 0
     try {
         yield schema.parseAsync({
             body: req.body,
+            query: req.query,
+            params: req.params,
         });
         return next();
     }

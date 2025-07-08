@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserProfileZodSchema = void 0;
+exports.getUserByMoodValidationSchema = exports.updateUserProfileZodSchema = void 0;
 const zod_1 = require("zod");
 // User profile update validation
 exports.updateUserProfileZodSchema = zod_1.z.object({
@@ -65,5 +65,18 @@ exports.updateUserProfileZodSchema = zod_1.z.object({
             .string()
             .min(1, 'Profile photo URL cannot be empty')
             .optional(),
+    }),
+});
+exports.getUserByMoodValidationSchema = zod_1.z.object({
+    query: zod_1.z.object({
+        moods: zod_1.z
+            .string({
+            required_error: 'Moods are required',
+        })
+            .min(1, 'At least one mood is required'),
+        limit: zod_1.z
+            .string()
+            .optional()
+            .transform((val) => (val ? parseInt(val) : 20)),
     }),
 });

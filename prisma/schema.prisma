@@ -19,33 +19,36 @@ model User {
   updatedAt         DateTime @updatedAt
 
   // OTP for password reset and verification
-  otp               String?
-  otpExpiresAt      DateTime?
-  
+  otp          String?
+  otpExpiresAt DateTime?
+
   // Refresh token for authentication
-  refreshToken      String?
+  refreshToken String?
 
   // Profile information
-  gender            Gender?
-  interestedIn      InterestedIn?
-  heightFeet        Int?
-  heightInches      Int?
-  
+  gender       Gender?
+  interestedIn InterestedIn?
+  heightFeet   Int?
+  heightInches Int?
+
   // Optional profile information
-  birthday          DateTime?
-  bio               String?
+  birthday           DateTime?
+  bio                String?
   relationshipStatus RelationshipStatus?
-  language          String[] // Array of languages
-  work              String?
-  
+  language           String[] // Array of languages
+  work               String?
+
   // Location information
-  address           String?
-  city              String?
-  state             String?
-  zipCode           String?
-  
+  address String?
+  city    String?
+  state   String?
+  zipCode String?
+
+  //Feeling today
+  feelingToday Mood[] @default([])
+
   // Profile picture
-  profilePhotoUrl   String?
+  profilePhotoUrl String?
 
   @@map("users")
 }
@@ -69,4 +72,17 @@ enum RelationshipStatus {
   divorced
   widowed
   complicated
+}
+
+enum Mood {
+  HAPPY
+  SAD
+  CALM
+  BORED
+  ROMANTIC
+  FRUSTRATED
+  STRESSED
+  GRATEFUL
+  FLIRTY
+  ANGRY
 }

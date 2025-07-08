@@ -39,7 +39,85 @@ const updateUserProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void
         data: result,
     });
 }));
+//=======================Change Password=======================
+const requestPasswordOtp = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.body;
+    yield user_service_1.UserService.requestPasswordOtp(email);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        message: 'OTP sent to your email',
+        data: '',
+    });
+}));
+const verifyPasswordOtp = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, otp } = req.body;
+    yield user_service_1.UserService.verifyPasswordOtp(email, otp);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        message: 'OTP verified, you can now change your password',
+        data: '',
+    });
+}));
+const changePassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, oldPassword, newPassword } = req.body;
+    yield user_service_1.UserService.changePassword(email, oldPassword, newPassword);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        message: 'Password changed successfully',
+        data: '',
+    });
+}));
+//==================Reset Password====================
+const requestResetPasswordOtp = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.body;
+    yield user_service_1.UserService.requestResetPasswordOtp(email);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        message: 'OTP sent to your email',
+        data: '',
+    });
+}));
+const verifyResetPasswordOtp = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, otp } = req.body;
+    yield user_service_1.UserService.verifyResetPasswordOtp(email, otp);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        message: 'OTP verified, you can now reset your password',
+        data: '',
+    });
+}));
+const resetPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, newPassword } = req.body;
+    yield user_service_1.UserService.resetPassword(email, newPassword);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        message: 'Password reset successfully',
+        data: '',
+    });
+}));
+//==================get user by mood================
+const getUserByMood = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { moods, limit } = req.query;
+    const { email } = req.user;
+    // Parse moods from query string (comma-separated)
+    const selectedMoods = (moods === null || moods === void 0 ? void 0 : moods.split(',')) || [];
+    const limitNumber = limit ? parseInt(limit) : 20;
+    const result = yield user_service_1.UserService.getUserByMood(email, selectedMoods, limitNumber);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Users found successfully',
+        data: result,
+    });
+}));
 exports.UserController = {
     getUserProfile,
     updateUserProfile,
+    requestPasswordOtp,
+    verifyPasswordOtp,
+    changePassword,
+    requestResetPasswordOtp,
+    verifyResetPasswordOtp,
+    resetPassword,
+    getUserByMood
 };

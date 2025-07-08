@@ -64,4 +64,18 @@ export const updateUserProfileZodSchema = z.object({
       .min(1, 'Profile photo URL cannot be empty')
       .optional(),
   }),
+});
+
+export const getUserByMoodValidationSchema = z.object({
+  query: z.object({
+    moods: z
+      .string({
+        required_error: 'Moods are required',
+      })
+      .min(1, 'At least one mood is required'),
+    limit: z
+      .string()
+      .optional()
+      .transform((val) => (val ? parseInt(val) : 20)),
+  }),
 }); 

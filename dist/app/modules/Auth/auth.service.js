@@ -20,6 +20,7 @@ const config_1 = __importDefault(require("../../../config"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const generateMoods_1 = require("../../utils/generateMoods");
 //==================Create User or SignUp user===============
 const createUser = (userData) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = userData;
@@ -41,7 +42,7 @@ const createUser = (userData) => __awaiter(void 0, void 0, void 0, function* () 
     // Hash password
     const hashedPassword = yield bcrypt_1.default.hash(password, Number(config_1.default.bcrypt_salt_rounds));
     // Prepare data for user creation
-    const userCreateData = Object.assign(Object.assign({}, userData), { password: hashedPassword, birthday: userData.birthday ? new Date(userData.birthday) : undefined });
+    const userCreateData = Object.assign(Object.assign({}, userData), { password: hashedPassword, birthday: userData.birthday ? new Date(userData.birthday) : undefined, feelingToday: (0, generateMoods_1.generateRandomMoods)(3) });
     // Create new user
     const user = yield prisma_1.default.user.create({
         data: userCreateData,
@@ -65,6 +66,7 @@ const createUser = (userData) => __awaiter(void 0, void 0, void 0, function* () 
             state: true,
             zipCode: true,
             profilePhotoUrl: true,
+            feelingToday: true,
             createdAt: true,
             updatedAt: true,
         },

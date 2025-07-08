@@ -9,6 +9,7 @@ import {
 import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
+import { generateRandomMoods } from '../../utils/generateMoods';
 
 //==================Create User or SignUp user===============
 const createUser = async (userData: ICreateUser) => {
@@ -41,6 +42,7 @@ const createUser = async (userData: ICreateUser) => {
     ...userData,
     password: hashedPassword,
     birthday: userData.birthday ? new Date(userData.birthday) : undefined,
+    feelingToday: generateRandomMoods(3),
   };
 
   // Create new user
@@ -66,6 +68,7 @@ const createUser = async (userData: ICreateUser) => {
       state: true,
       zipCode: true,
       profilePhotoUrl: true,
+      feelingToday: true,
       createdAt: true,
       updatedAt: true,
     },
