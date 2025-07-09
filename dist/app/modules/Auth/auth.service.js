@@ -74,6 +74,11 @@ const createUser = (userData) => __awaiter(void 0, void 0, void 0, function* () 
     // Generate tokens
     const accessToken = (0, generateToken_1.generateToken)({ userId: user.id, email: user.email }, config_1.default.jwt.access_secret, config_1.default.jwt.access_expires_in);
     const refreshToken = (0, generateToken_1.generateToken)({ userId: user.id, email: user.email }, config_1.default.jwt.refresh_secret, config_1.default.jwt.refresh_expires_in);
+    // Store refresh token in database
+    yield prisma_1.default.user.update({
+        where: { id: user.id },
+        data: { refreshToken },
+    });
     // Return user data with tokens
     return {
         user,
@@ -84,9 +89,12 @@ const createUser = (userData) => __awaiter(void 0, void 0, void 0, function* () 
 //=====================Loging User======================
 const loginUser = (loginData) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = loginData;
-    // Find user
+    // Find user and check if active
     const user = yield prisma_1.default.user.findUnique({
-        where: { email },
+        where: {
+            email,
+            isActive: true
+        },
     });
     if (!user) {
         throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'Invalid email or password');
@@ -99,6 +107,11 @@ const loginUser = (loginData) => __awaiter(void 0, void 0, void 0, function* () 
     // Generate tokens
     const accessToken = (0, generateToken_1.generateToken)({ userId: user.id, email: user.email }, config_1.default.jwt.access_secret, config_1.default.jwt.access_expires_in);
     const refreshToken = (0, generateToken_1.generateToken)({ userId: user.id, email: user.email }, config_1.default.jwt.refresh_secret, config_1.default.jwt.refresh_expires_in);
+    // Store refresh token in database
+    yield prisma_1.default.user.update({
+        where: { id: user.id },
+        data: { refreshToken },
+    });
     // Return only essential user data
     const userResponse = {
         id: user.id,
@@ -116,16 +129,24 @@ const refreshToken = (refreshToken) => __awaiter(void 0, void 0, void 0, functio
     try {
         // Verify refresh token
         const decoded = jsonwebtoken_1.default.verify(refreshToken, config_1.default.jwt.refresh_secret);
-        // Find user
+        // Find user and check if active
         const user = yield prisma_1.default.user.findUnique({
-            where: { id: decoded.userId },
+            where: {
+                id: decoded.userId,
+                isActive: true
+            },
         });
         if (!user) {
-            throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'Invalid refresh token');
+            throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'Invalid refresh token or account deactivated');
         }
         // Generate new tokens
         const newAccessToken = (0, generateToken_1.generateToken)({ userId: user.id, email: user.email }, config_1.default.jwt.access_secret, config_1.default.jwt.access_expires_in);
         const newRefreshToken = (0, generateToken_1.generateToken)({ userId: user.id, email: user.email }, config_1.default.jwt.refresh_secret, config_1.default.jwt.refresh_expires_in);
+        // Store new refresh token in database
+        yield prisma_1.default.user.update({
+            where: { id: user.id },
+            data: { refreshToken: newRefreshToken },
+        });
         return {
             accessToken: newAccessToken,
             refreshToken: newRefreshToken,
@@ -143,6 +164,11 @@ const logoutUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     if (!user) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
     }
+    // Clear refresh token for security
+    yield prisma_1.default.user.update({
+        where: { id: userId },
+        data: { refreshToken: null },
+    });
     return { message: 'Logged out successfully' };
 });
 exports.AuthService = {

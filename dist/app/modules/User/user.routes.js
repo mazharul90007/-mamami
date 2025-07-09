@@ -26,4 +26,6 @@ router.post('/verify-reset-password-otp', (0, validateRequest_1.default)(user_va
 router.post('/reset-password', (0, validateRequest_1.default)(user_validation_1.resetPasswordZodSchema), user_controller_1.UserController.resetPassword);
 // Get users by mood (for matching)
 router.get('/matches', auth_1.default, (0, validateRequest_1.default)(user_validation_1.getUserByMoodValidationSchema), user_controller_1.UserController.getUserByMood);
+//============Soft Delete User==================
+router.delete('/profile', auth_1.default, user_controller_1.UserController.softDeleteUser);
 exports.UserRouters = router;

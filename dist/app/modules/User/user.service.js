@@ -310,6 +310,38 @@ const getUserByMood = (email_1, selectedMoods_1, ...args_1) => __awaiter(void 0,
     });
     return matchedUsers;
 });
+//===========Soft Delete User==============
+const softDeleteUser = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield prisma_1.default.user.findUnique({
+        where: { email },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            isActive: true,
+        },
+    });
+    if (!user) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
+    }
+    if (!user.isActive) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'User is already deleted');
+    }
+    const deletedUser = yield prisma_1.default.user.update({
+        where: { email },
+        data: {
+            isActive: false,
+            refreshToken: null, // Clear refresh token for security
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            isActive: true,
+        },
+    });
+    return deletedUser;
+});
 exports.UserService = {
     getUserProfile,
     updateUserProfile,
@@ -321,5 +353,6 @@ exports.UserService = {
     resetPassword,
     updateDailyMoods,
     getUserByMood,
-    resendOtp
+    resendOtp,
+    softDeleteUser,
 };

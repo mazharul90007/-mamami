@@ -349,7 +349,10 @@ const softDeleteUser = async (email: string) => {
 
   const deletedUser = await prisma.user.update({
     where: { email },
-    data: { isActive: false },
+    data: { 
+      isActive: false,
+      refreshToken: null,  // Clear refresh token for security
+    },
     select: {
       id: true,
       name: true,

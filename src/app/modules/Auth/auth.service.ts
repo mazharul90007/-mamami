@@ -87,6 +87,12 @@ const createUser = async (userData: ICreateUser) => {
     config.jwt.refresh_expires_in,
   );
 
+  // Store refresh token in database
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { refreshToken },
+  });
+
   // Return user data with tokens
   return {
     user,
@@ -99,9 +105,12 @@ const createUser = async (userData: ICreateUser) => {
 const loginUser = async (loginData: ILoginUser) => {
   const { email, password } = loginData;
 
-  // Find user
+  // Find user and check if active
   const user = await prisma.user.findUnique({
-    where: { email },
+    where: { 
+      email,
+      isActive: true 
+    },
   });
 
   if (!user) {
@@ -126,6 +135,12 @@ const loginUser = async (loginData: ILoginUser) => {
     config.jwt.refresh_secret,
     config.jwt.refresh_expires_in,
   );
+
+  // Store refresh token in database
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { refreshToken },
+  });
 
   // Return only essential user data
   const userResponse = {
@@ -154,13 +169,16 @@ const refreshToken = async (refreshToken: string) => {
       email: string;
     };
 
-    // Find user
+    // Find user and check if active
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+      where: { 
+        id: decoded.userId,
+        isActive: true 
+      },
     });
 
     if (!user) {
-      throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid refresh token');
+      throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid refresh token or account deactivated');
     }
 
     // Generate new tokens
@@ -175,6 +193,12 @@ const refreshToken = async (refreshToken: string) => {
       config.jwt.refresh_secret,
       config.jwt.refresh_expires_in,
     );
+
+    // Store new refresh token in database
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: newRefreshToken },
+    });
 
     return {
       accessToken: newAccessToken,
@@ -195,6 +219,12 @@ const logoutUser = async (userId: string) => {
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
+
+  // Clear refresh token for security
+  await prisma.user.update({
+    where: { id: userId },
+    data: { refreshToken: null },
+  });
 
   return { message: 'Logged out successfully' };
 };
