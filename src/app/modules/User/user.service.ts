@@ -265,7 +265,7 @@ const resendOtp = async (email: string) => {
 
 
 //===============Update User daily Mood====================
-const updateDailyMoods = async (email: string): Promise<IUserResponse> => {
+const updateDailyMoods = async (email: string) => {
   const randomMoods = generateRandomMoods(3);
   
   const updatedUser = await prisma.user.update({
@@ -275,24 +275,7 @@ const updateDailyMoods = async (email: string): Promise<IUserResponse> => {
       id: true,
       email: true,
       name: true,
-      isActive: true,
-      canChangePassword: true,
-      gender: true,
-      interestedIn: true,
-      heightFeet: true,
-      heightInches: true,
-      birthday: true,
-      bio: true,
-      relationshipStatus: true,
-      language: true,
-      work: true,
-      address: true,
-      city: true,
-      state: true,
-      zipCode: true,
-      profilePhotoUrl: true,
       feelingToday: true,
-      createdAt: true,
       updatedAt: true,
     },
   });
@@ -301,7 +284,7 @@ const updateDailyMoods = async (email: string): Promise<IUserResponse> => {
 };
 
 //==================get User by Mood=====================
-const getUserByMood = async (email: string, selectedMoods: Mood[], limit: number = 20): Promise<IUserResponse[]> => {
+const getUserByMood = async (email: string, selectedMoods: Mood[], limit: number = 20) => {
   // First, update the user's feelingToday with their selected moods
   await prisma.user.update({
     where: { email },
@@ -325,27 +308,11 @@ const getUserByMood = async (email: string, selectedMoods: Mood[], limit: number
     },
     select: {
       id: true,
-      email: true,
       name: true,
-      isActive: true,
-      canChangePassword: true,
+      email: true,
       gender: true,
-      interestedIn: true,
-      heightFeet: true,
-      heightInches: true,
       birthday: true,
-      bio: true,
-      relationshipStatus: true,
-      language: true,
-      work: true,
-      address: true,
-      city: true,
-      state: true,
-      zipCode: true,
       profilePhotoUrl: true,
-      feelingToday: true,
-      createdAt: true,
-      updatedAt: true,
     },
     take: limit,
   });
