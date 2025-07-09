@@ -14,21 +14,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendOtpEmail = sendOtpEmail;
 const nodemailer_1 = __importDefault(require("nodemailer"));
+const config_1 = __importDefault(require("../../config"));
 const transporter = nodemailer_1.default.createTransport({
-    service: 'Gmail',
+    host: 'smtp-relay.brevo.com',
+    port: 587,
+    secure: false,
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: config_1.default.brevo_user,
+        pass: config_1.default.brevo_api_key,
     },
 });
 function sendOtpEmail(to, otp) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to,
-            subject: 'Your OTP Code',
-            text: `Your OTP code is: ${otp}`,
-            html: `<p>Your OTP code is: <b>${otp}</b></p>`,
-        });
+        try {
+            yield transporter.sendMail({
+                from: config_1.default.brevo_sender_email,
+                to,
+                subject: 'Your OTP Code',
+                text: `Your OTP code is: ${otp}. This code will expire in 5 minutes.`,
+                html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Your OTP Code</h2>
+        <p>Your verification code is:</p>
+        <h1 style="color: #007bff; font-size: 32px; letter-spacing: 5px;">${otp}</h1>
+        <p><strong>This code will expire in 5 minutes.</strong></p>
+        <p>If you didn't request this code, please ignore this email.</p>
+      </div>`,
+            });
+        }
+        catch (error) {
+            console.error('Email sending failed:', error);
+            throw new Error('Failed to send OTP email');
+        }
     });
 }

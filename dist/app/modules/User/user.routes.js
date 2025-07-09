@@ -15,13 +15,15 @@ router.get('/profile', auth_1.default, user_controller_1.UserController.getUserP
 //==============Update Profile==============
 router.patch('/profile', auth_1.default, (0, validateRequest_1.default)(user_validation_1.updateUserProfileZodSchema), user_controller_1.UserController.updateUserProfile);
 //===============Change Password==============
-router.post('/verify-password-otp', user_controller_1.UserController.verifyPasswordOtp);
-router.post('/request-password-otp', user_controller_1.UserController.requestPasswordOtp);
-router.post('/change-password', user_controller_1.UserController.changePassword);
+router.post('/verify-password-otp', (0, validateRequest_1.default)(user_validation_1.verifyOtpZodSchema), user_controller_1.UserController.verifyPasswordOtp);
+router.post('/request-password-otp', (0, validateRequest_1.default)(user_validation_1.requestOtpZodSchema), user_controller_1.UserController.requestPasswordOtp);
+router.post('/change-password', (0, validateRequest_1.default)(user_validation_1.changePasswordZodSchema), user_controller_1.UserController.changePassword);
+//================Resend OTP================
+router.post('/resend-otp', (0, validateRequest_1.default)(user_validation_1.requestOtpZodSchema), user_controller_1.UserController.resendOtp);
 //================Reset Password===============
-router.post('/request-reset-password-otp', user_controller_1.UserController.requestResetPasswordOtp);
-router.post('/verify-reset-password-otp', user_controller_1.UserController.verifyResetPasswordOtp);
-router.post('/reset-password', user_controller_1.UserController.resetPassword);
+router.post('/request-reset-password-otp', (0, validateRequest_1.default)(user_validation_1.requestOtpZodSchema), user_controller_1.UserController.requestResetPasswordOtp);
+router.post('/verify-reset-password-otp', (0, validateRequest_1.default)(user_validation_1.verifyOtpZodSchema), user_controller_1.UserController.verifyResetPasswordOtp);
+router.post('/reset-password', (0, validateRequest_1.default)(user_validation_1.resetPasswordZodSchema), user_controller_1.UserController.resetPassword);
 // Get users by mood (for matching)
 router.get('/matches', auth_1.default, (0, validateRequest_1.default)(user_validation_1.getUserByMoodValidationSchema), user_controller_1.UserController.getUserByMood);
 exports.UserRouters = router;

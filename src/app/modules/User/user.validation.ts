@@ -78,4 +78,70 @@ export const getUserByMoodValidationSchema = z.object({
       .optional()
       .transform((val) => (val ? parseInt(val) : 20)),
   }),
+});
+
+// OTP validation schemas
+export const requestOtpZodSchema = z.object({
+  body: z.object({
+    email: z
+      .string({
+        required_error: 'Email is required',
+      })
+      .email('Invalid email format')
+      .min(1, 'Email cannot be empty'),
+  }),
+});
+
+export const verifyOtpZodSchema = z.object({
+  body: z.object({
+    email: z
+      .string({
+        required_error: 'Email is required',
+      })
+      .email('Invalid email format')
+      .min(1, 'Email cannot be empty'),
+    otp: z
+      .string({
+        required_error: 'OTP is required',
+      })
+      .length(6, 'OTP must be exactly 6 digits')
+      .regex(/^\d{6}$/, 'OTP must contain only numbers'),
+  }),
+});
+
+export const changePasswordZodSchema = z.object({
+  body: z.object({
+    email: z
+      .string({
+        required_error: 'Email is required',
+      })
+      .email('Invalid email format')
+      .min(1, 'Email cannot be empty'),
+    oldPassword: z
+      .string({
+        required_error: 'Old password is required',
+      })
+      .min(6, 'Password must be at least 6 characters'),
+    newPassword: z
+      .string({
+        required_error: 'New password is required',
+      })
+      .min(6, 'Password must be at least 6 characters'),
+  }),
+});
+
+export const resetPasswordZodSchema = z.object({
+  body: z.object({
+    email: z
+      .string({
+        required_error: 'Email is required',
+      })
+      .email('Invalid email format')
+      .min(1, 'Email cannot be empty'),
+    newPassword: z
+      .string({
+        required_error: 'New password is required',
+      })
+      .min(6, 'Password must be at least 6 characters'),
+  }),
 }); 

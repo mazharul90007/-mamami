@@ -1,16 +1,17 @@
-import dotenv from "dotenv";
-import path from "path";
-import * as jwt from "jsonwebtoken";
-import { Secret } from "jsonwebtoken";
+import dotenv from 'dotenv';
+import path from 'path';
+import * as jwt from 'jsonwebtoken';
+import { Secret } from 'jsonwebtoken';
 
-dotenv.config({ path: path.join(process.cwd(), ".env") });
+dotenv.config({ path: path.join(process.cwd(), '.env') });
 
 export default {
   env: process.env.NODE_ENV,
   port: process.env.PORT,
   bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,
-  mail: process.env.MAIL,
-  mail_password: process.env.MAIL_PASS,
+  brevo_user: process.env.BREVO_USER,
+  brevo_sender_email: process.env.BREVO_SENDER_EMAIL,
+  brevo_api_key: process.env.BREVO_API_KEY,
   base_url_server: process.env.BASE_URL_SERVER,
   base_url_client: process.env.BASE_URL_CLIENT,
   jwt: {

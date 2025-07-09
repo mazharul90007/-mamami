@@ -46,11 +46,10 @@ A Node.js/TypeScript backend application with Express.js, Prisma ORM, and compre
    JWT_REFRESH_SECRET=your_refresh_secret_key_here
    JWT_REFRESH_EXPIRES_IN=7d
 
-   # Email Configuration
-   EMAIL_USER=your_email@gmail.com
-   EMAIL_PASS=your_app_password_here
-   MAIL=your_email@gmail.com
-   MAIL_PASS=your_app_password_here
+   # Email Configuration (Brevo)
+   BREVO_USER=your_brevo_username
+   BREVO_SENDER_EMAIL=your_verified_sender@domain.com
+   BREVO_API_KEY=your_brevo_api_key
 
    # Password Hashing
    BCRYPT_SALT_ROUNDS=12
@@ -123,10 +122,14 @@ This project uses PostgreSQL with Prisma ORM. Make sure you have PostgreSQL inst
 
 ## Email Setup
 
-For email functionality, you'll need to:
-1. Enable 2-factor authentication on your Gmail account
-2. Generate an App Password
-3. Use the App Password in your `.env` file
+For email functionality with Brevo:
+1. Create a Brevo account at https://www.brevo.com
+2. Get your SMTP credentials from Brevo dashboard
+3. Add your verified sender email address
+4. Use the credentials in your `.env` file:
+   - `BREVO_USER`: Your Brevo username/API key
+   - `BREVO_SENDER_EMAIL`: Your verified sender email
+   - `BREVO_API_KEY`: Your Brevo API key
 
 ## Security Features
 

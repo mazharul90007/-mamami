@@ -95,6 +95,16 @@ const resetPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         data: '',
     });
 }));
+//==================Resend OTP====================
+const resendOtp = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.body;
+    yield user_service_1.UserService.resendOtp(email);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        message: 'OTP resent to your email',
+        data: '',
+    });
+}));
 //==================get user by mood================
 const getUserByMood = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { moods, limit } = req.query;
@@ -119,5 +129,6 @@ exports.UserController = {
     requestResetPasswordOtp,
     verifyResetPasswordOtp,
     resetPassword,
-    getUserByMood
+    getUserByMood,
+    resendOtp
 };

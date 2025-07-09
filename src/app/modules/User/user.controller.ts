@@ -95,6 +95,17 @@ const resetPassword = catchAsync(async (req, res) => {
   });
 });
 
+//==================Resend OTP====================
+const resendOtp = catchAsync(async (req, res) => {
+  const { email } = req.body;
+  await UserService.resendOtp(email);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'OTP resent to your email',
+    data: '',
+  });
+});
+
 //==================get user by mood================
 const getUserByMood = catchAsync(async (req: Request, res: Response) => {
   const { moods, limit } = req.query;
@@ -123,5 +134,6 @@ export const UserController = {
   requestResetPasswordOtp,
   verifyResetPasswordOtp,
   resetPassword,
-  getUserByMood
+  getUserByMood,
+  resendOtp
 };

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserByMoodValidationSchema = exports.updateUserProfileZodSchema = void 0;
+exports.resetPasswordZodSchema = exports.changePasswordZodSchema = exports.verifyOtpZodSchema = exports.requestOtpZodSchema = exports.getUserByMoodValidationSchema = exports.updateUserProfileZodSchema = void 0;
 const zod_1 = require("zod");
 // User profile update validation
 exports.updateUserProfileZodSchema = zod_1.z.object({
@@ -78,5 +78,67 @@ exports.getUserByMoodValidationSchema = zod_1.z.object({
             .string()
             .optional()
             .transform((val) => (val ? parseInt(val) : 20)),
+    }),
+});
+// OTP validation schemas
+exports.requestOtpZodSchema = zod_1.z.object({
+    body: zod_1.z.object({
+        email: zod_1.z
+            .string({
+            required_error: 'Email is required',
+        })
+            .email('Invalid email format')
+            .min(1, 'Email cannot be empty'),
+    }),
+});
+exports.verifyOtpZodSchema = zod_1.z.object({
+    body: zod_1.z.object({
+        email: zod_1.z
+            .string({
+            required_error: 'Email is required',
+        })
+            .email('Invalid email format')
+            .min(1, 'Email cannot be empty'),
+        otp: zod_1.z
+            .string({
+            required_error: 'OTP is required',
+        })
+            .length(6, 'OTP must be exactly 6 digits')
+            .regex(/^\d{6}$/, 'OTP must contain only numbers'),
+    }),
+});
+exports.changePasswordZodSchema = zod_1.z.object({
+    body: zod_1.z.object({
+        email: zod_1.z
+            .string({
+            required_error: 'Email is required',
+        })
+            .email('Invalid email format')
+            .min(1, 'Email cannot be empty'),
+        oldPassword: zod_1.z
+            .string({
+            required_error: 'Old password is required',
+        })
+            .min(6, 'Password must be at least 6 characters'),
+        newPassword: zod_1.z
+            .string({
+            required_error: 'New password is required',
+        })
+            .min(6, 'Password must be at least 6 characters'),
+    }),
+});
+exports.resetPasswordZodSchema = zod_1.z.object({
+    body: zod_1.z.object({
+        email: zod_1.z
+            .string({
+            required_error: 'Email is required',
+        })
+            .email('Invalid email format')
+            .min(1, 'Email cannot be empty'),
+        newPassword: zod_1.z
+            .string({
+            required_error: 'New password is required',
+        })
+            .min(6, 'Password must be at least 6 characters'),
     }),
 });

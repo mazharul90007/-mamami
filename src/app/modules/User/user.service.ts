@@ -7,6 +7,7 @@ import { sendOtpEmail } from '../../utils/sendEmail';
 import { generateOtp } from '../../utils/generateOTP';
 import { generateRandomMoods, Mood, getOppositeMoods } from '../../utils/generateMoods';
 
+//===================Get User Profile =====================
 const getUserProfile = async (email?: string): Promise<IUserResponse> => {
   const user = await prisma.user.findUnique({
     where: {
@@ -46,6 +47,7 @@ const getUserProfile = async (email?: string): Promise<IUserResponse> => {
   return user;
 };
 
+//================Update User Profile ==============
 const updateUserProfile = async (
   email: string,
   updateData: IUpdateUser,
@@ -59,7 +61,7 @@ const updateUserProfile = async (
     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
 
-  // Update user profile
+  // Update profile
   const updatedUser = await prisma.user.update({
     where: { email },
     data: {
@@ -231,6 +233,38 @@ const resetPassword = async (email: string, newPassword: string) => {
   });
 };
 
+// ======================Resend OTP====================
+const resendOtp = async (email: string) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      email,
+      isActive: true,
+    },
+  });
+  
+  if (!user) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'User not found or not verified',
+    );
+  }
+
+  // Generate new OTP
+  const otp = generateOtp();
+  const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  
+  // Update user with new OTP
+  await prisma.user.update({
+    where: { email },
+    data: { otp, otpExpiresAt },
+  });
+  
+  // Send new OTP email
+  await sendOtpEmail(email, otp);
+};
+
+
+//===============Update User daily Mood====================
 const updateDailyMoods = async (email: string): Promise<IUserResponse> => {
   const randomMoods = generateRandomMoods(3);
   
@@ -266,6 +300,7 @@ const updateDailyMoods = async (email: string): Promise<IUserResponse> => {
   return updatedUser;
 };
 
+//==================get User by Mood=====================
 const getUserByMood = async (email: string, selectedMoods: Mood[], limit: number = 20): Promise<IUserResponse[]> => {
   // First, update the user's feelingToday with their selected moods
   await prisma.user.update({
@@ -328,5 +363,6 @@ export const UserService = {
   verifyResetPasswordOtp,
   resetPassword,
   updateDailyMoods,
-  getUserByMood
+  getUserByMood,
+  resendOtp
 };

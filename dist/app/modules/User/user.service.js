@@ -53,6 +53,7 @@ const http_status_1 = __importDefault(require("http-status"));
 const sendEmail_1 = require("../../utils/sendEmail");
 const generateOTP_1 = require("../../utils/generateOTP");
 const generateMoods_1 = require("../../utils/generateMoods");
+//===================Get User Profile =====================
 const getUserProfile = (email) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield prisma_1.default.user.findUnique({
         where: {
@@ -89,6 +90,7 @@ const getUserProfile = (email) => __awaiter(void 0, void 0, void 0, function* ()
     }
     return user;
 });
+//================Update User Profile ==============
 const updateUserProfile = (email, updateData) => __awaiter(void 0, void 0, void 0, function* () {
     // Check if user exists
     const existingUser = yield prisma_1.default.user.findUnique({
@@ -97,7 +99,7 @@ const updateUserProfile = (email, updateData) => __awaiter(void 0, void 0, void 
     if (!existingUser) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
     }
-    // Update user profile
+    // Update profile
     const updatedUser = yield prisma_1.default.user.update({
         where: { email },
         data: Object.assign(Object.assign({}, updateData), (updateData.birthday && { birthday: new Date(updateData.birthday) })),
@@ -238,6 +240,29 @@ const resetPassword = (email, newPassword) => __awaiter(void 0, void 0, void 0, 
         data: { password: hashedPassword, canChangePassword: false },
     });
 });
+// ======================Resend OTP====================
+const resendOtp = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield prisma_1.default.user.findUnique({
+        where: {
+            email,
+            isActive: true,
+        },
+    });
+    if (!user) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'User not found or not verified');
+    }
+    // Generate new OTP
+    const otp = (0, generateOTP_1.generateOtp)();
+    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    // Update user with new OTP
+    yield prisma_1.default.user.update({
+        where: { email },
+        data: { otp, otpExpiresAt },
+    });
+    // Send new OTP email
+    yield (0, sendEmail_1.sendOtpEmail)(email, otp);
+});
+//===============Update User daily Mood====================
 const updateDailyMoods = (email) => __awaiter(void 0, void 0, void 0, function* () {
     const randomMoods = (0, generateMoods_1.generateRandomMoods)(3);
     const updatedUser = yield prisma_1.default.user.update({
@@ -270,6 +295,7 @@ const updateDailyMoods = (email) => __awaiter(void 0, void 0, void 0, function* 
     });
     return updatedUser;
 });
+//==================get User by Mood=====================
 const getUserByMood = (email_1, selectedMoods_1, ...args_1) => __awaiter(void 0, [email_1, selectedMoods_1, ...args_1], void 0, function* (email, selectedMoods, limit = 20) {
     // First, update the user's feelingToday with their selected moods
     yield prisma_1.default.user.update({
@@ -327,5 +353,6 @@ exports.UserService = {
     verifyResetPasswordOtp,
     resetPassword,
     updateDailyMoods,
-    getUserByMood
+    getUserByMood,
+    resendOtp
 };

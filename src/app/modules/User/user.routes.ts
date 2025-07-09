@@ -5,6 +5,10 @@ import auth from '../../middlewares/auth';
 import {
   updateUserProfileZodSchema,
   getUserByMoodValidationSchema,
+  requestOtpZodSchema,
+  verifyOtpZodSchema,
+  changePasswordZodSchema,
+  resetPasswordZodSchema,
 } from './user.validation';
 
 const router = Router();
@@ -22,24 +26,44 @@ router.patch(
 
 //===============Change Password==============
 
-router.post('/verify-password-otp', UserController.verifyPasswordOtp);
+router.post('/verify-password-otp', 
+  validateRequest(verifyOtpZodSchema), 
+  UserController.verifyPasswordOtp
+);
 
-router.post('/request-password-otp', UserController.requestPasswordOtp);
+router.post('/request-password-otp', 
+  validateRequest(requestOtpZodSchema), 
+  UserController.requestPasswordOtp
+);
 
-router.post('/change-password', UserController.changePassword);
+router.post('/change-password', 
+  validateRequest(changePasswordZodSchema), 
+  UserController.changePassword
+);
+
+//================Resend OTP================
+router.post('/resend-otp', 
+  validateRequest(requestOtpZodSchema), 
+  UserController.resendOtp
+);
 
 //================Reset Password===============
 router.post(
   '/request-reset-password-otp',
+  validateRequest(requestOtpZodSchema),
   UserController.requestResetPasswordOtp,
 );
 
 router.post(
   '/verify-reset-password-otp',
+  validateRequest(verifyOtpZodSchema),
   UserController.verifyResetPasswordOtp,
 );
 
-router.post('/reset-password', UserController.resetPassword);
+router.post('/reset-password', 
+  validateRequest(resetPasswordZodSchema), 
+  UserController.resetPassword
+);
 
 // Get users by mood (for matching)
 router.get('/matches', auth, validateRequest(getUserByMoodValidationSchema), UserController.getUserByMood);

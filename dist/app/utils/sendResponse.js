@@ -6,7 +6,7 @@ const sendResponse = (res, data) => {
         statusCode: data === null || data === void 0 ? void 0 : data.statusCode,
         message: data.message,
         meta: data.meta,
-        data: data.data,
+        data: (data === null || data === void 0 ? void 0 : data.data) || null || undefined,
     });
 };
 exports.default = sendResponse;
