@@ -5,7 +5,11 @@ import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
 import { sendOtpEmail } from '../../utils/sendEmail';
 import { generateOtp } from '../../utils/generateOTP';
-import { generateRandomMoods, Mood, getOppositeMoods } from '../../utils/generateMoods';
+import {
+  generateRandomMoods,
+  Mood,
+  getOppositeMoods,
+} from '../../utils/generateMoods';
 
 //===================Get User Profile =====================
 const getUserProfile = async (email?: string): Promise<IUserResponse> => {
@@ -241,7 +245,7 @@ const resendOtp = async (email: string) => {
       isActive: true,
     },
   });
-  
+
   if (!user) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -252,22 +256,21 @@ const resendOtp = async (email: string) => {
   // Generate new OTP
   const otp = generateOtp();
   const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
-  
+
   // Update user with new OTP
   await prisma.user.update({
     where: { email },
     data: { otp, otpExpiresAt },
   });
-  
+
   // Send new OTP email
   await sendOtpEmail(email, otp);
 };
 
-
 //===============Update User daily Mood====================
 const updateDailyMoods = async (email: string) => {
   const randomMoods = generateRandomMoods(3);
-  
+
   const updatedUser = await prisma.user.update({
     where: { email },
     data: { feelingToday: randomMoods },
@@ -279,12 +282,16 @@ const updateDailyMoods = async (email: string) => {
       updatedAt: true,
     },
   });
-  
+
   return updatedUser;
 };
 
 //==================get User by Mood=====================
-const getUserByMood = async (email: string, selectedMoods: Mood[], limit: number = 20) => {
+const getUserByMood = async (
+  email: string,
+  selectedMoods: Mood[],
+  limit: number = 20,
+) => {
   // First, update the user's feelingToday with their selected moods
   await prisma.user.update({
     where: { email },
@@ -293,7 +300,7 @@ const getUserByMood = async (email: string, selectedMoods: Mood[], limit: number
 
   // Get opposite moods for matching
   const oppositeMoods = getOppositeMoods(selectedMoods);
-  
+
   // Combine same and opposite moods for matching
   const allMatchingMoods = [...selectedMoods, ...oppositeMoods];
 
@@ -320,6 +327,40 @@ const getUserByMood = async (email: string, selectedMoods: Mood[], limit: number
   return matchedUsers;
 };
 
+//===========Soft Delete User==============
+const softDeleteUser = async (email: string) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      isActive: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  if (!user.isActive) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'User is already deleted');
+  }
+
+  const deletedUser = await prisma.user.update({
+    where: { email },
+    data: { isActive: false },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      isActive: true,
+    },
+  });
+
+  return deletedUser;
+};
+
 export const UserService = {
   getUserProfile,
   updateUserProfile,
@@ -331,5 +372,6 @@ export const UserService = {
   resetPassword,
   updateDailyMoods,
   getUserByMood,
-  resendOtp
+  resendOtp,
+  softDeleteUser,
 };

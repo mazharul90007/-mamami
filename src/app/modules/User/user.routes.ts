@@ -13,7 +13,6 @@ import {
 
 const router = Router();
 
-
 //==============Create User=================
 router.get('/profile', auth, UserController.getUserProfile);
 //==============Update Profile==============
@@ -26,25 +25,29 @@ router.patch(
 
 //===============Change Password==============
 
-router.post('/verify-password-otp', 
-  validateRequest(verifyOtpZodSchema), 
-  UserController.verifyPasswordOtp
+router.post(
+  '/verify-password-otp',
+  validateRequest(verifyOtpZodSchema),
+  UserController.verifyPasswordOtp,
 );
 
-router.post('/request-password-otp', 
-  validateRequest(requestOtpZodSchema), 
-  UserController.requestPasswordOtp
+router.post(
+  '/request-password-otp',
+  validateRequest(requestOtpZodSchema),
+  UserController.requestPasswordOtp,
 );
 
-router.post('/change-password', 
-  validateRequest(changePasswordZodSchema), 
-  UserController.changePassword
+router.post(
+  '/change-password',
+  validateRequest(changePasswordZodSchema),
+  UserController.changePassword,
 );
 
 //================Resend OTP================
-router.post('/resend-otp', 
-  validateRequest(requestOtpZodSchema), 
-  UserController.resendOtp
+router.post(
+  '/resend-otp',
+  validateRequest(requestOtpZodSchema),
+  UserController.resendOtp,
 );
 
 //================Reset Password===============
@@ -60,12 +63,21 @@ router.post(
   UserController.verifyResetPasswordOtp,
 );
 
-router.post('/reset-password', 
-  validateRequest(resetPasswordZodSchema), 
-  UserController.resetPassword
+router.post(
+  '/reset-password',
+  validateRequest(resetPasswordZodSchema),
+  UserController.resetPassword,
 );
 
 // Get users by mood (for matching)
-router.get('/matches', auth, validateRequest(getUserByMoodValidationSchema), UserController.getUserByMood);
+router.get(
+  '/matches',
+  auth,
+  validateRequest(getUserByMoodValidationSchema),
+  UserController.getUserByMood,
+);
+
+//============Soft Delete User==================
+router.delete('/profile', auth, UserController.softDeleteUser);
 
 export const UserRouters = router;

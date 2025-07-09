@@ -125,6 +125,18 @@ const getUserByMood = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+//===============Soft Delete User==============
+const softDeleteUser = catchAsync(async (req, res) => {
+  const email = req.user?.email;
+  const result = await UserService.softDeleteUser(email);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'User soft deleted successfully',
+    data: result,
+  });
+});
+
 export const UserController = {
   getUserProfile,
   updateUserProfile,
@@ -135,5 +147,6 @@ export const UserController = {
   verifyResetPasswordOtp,
   resetPassword,
   getUserByMood,
-  resendOtp
+  resendOtp,
+  softDeleteUser,
 };
