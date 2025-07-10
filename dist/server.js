@@ -14,28 +14,50 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = __importDefault(require("./app"));
 const config_1 = __importDefault(require("./config"));
-const port = config_1.default.port || 5000;
-function main() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const server = app_1.default.listen(port, () => {
-            console.log("Sever is running on port ", port);
+const webSocket_1 = require("./app/utils/webSocket");
+let server;
+const main = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        server = app_1.default.listen(config_1.default.port || 5000, () => {
+            console.log(`🚀 App is listening on port: ${config_1.default.port || 5000}`);
         });
-        const exitHandler = () => {
-            if (server) {
-                server.close(() => {
-                    console.info("Server closed!");
-                });
-            }
-            process.exit(1);
-        };
-        process.on("uncaughtException", (error) => {
-            console.log(error);
-            exitHandler();
-        });
-        process.on("unhandledRejection", (error) => {
-            console.log(error);
-            exitHandler();
-        });
-    });
-}
+        // ✅ Connect WebSocket
+        (0, webSocket_1.connectWebSocketServer)(server);
+    }
+    catch (err) {
+        console.log("❌ Error starting server:", err);
+        process.exit(1);
+    }
+});
 main();
+// Graceful shutdown handling
+const shutdown = () => {
+    console.log("🛑 Shutting down servers...");
+    if (server) {
+        server.close(() => {
+            console.log("✅ Servers closed");
+            process.exit(0);
+        });
+    }
+    else {
+        process.exit(0);
+    }
+};
+process.on("unhandledRejection", (error) => {
+    console.log(`❌ unhandledRejection is detected, shutting down...`);
+    console.error(error);
+    shutdown();
+});
+process.on("uncaughtException", (error) => {
+    console.log(`❌ uncaughtException is detected, shutting down...`);
+    console.error(error);
+    shutdown();
+});
+process.on("SIGTERM", () => {
+    console.log("🛑 SIGTERM received");
+    shutdown();
+});
+process.on("SIGINT", () => {
+    console.log("🛑 SIGINT received");
+    shutdown();
+});

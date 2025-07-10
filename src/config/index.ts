@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import path from 'path';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as jwt from 'jsonwebtoken';
 import { Secret } from 'jsonwebtoken';
 
