@@ -76,6 +76,29 @@ export const deleteFile = (filePath: string): boolean => {
   }
 };
 
+// Configure multer for voice messages
+export const uploadVoiceMessage = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit for voice messages
+  },
+  fileFilter: (req, file, cb) => {
+    // Check file type for audio
+    const allowedTypes = [
+      'audio/webm',
+      'audio/mp3',
+      'audio/wav',
+      'audio/ogg',
+      'audio/m4a',
+    ];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only audio files are allowed!'));
+    }
+  },
+});
+
 // Helper function to get file URL
 export const getFileUrl = (filename: string): string => {
   const baseUrl = process.env.BASE_URL_SERVER || 'http://localhost:5000';

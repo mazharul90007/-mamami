@@ -15,6 +15,10 @@ export default {
   brevo_api_key: process.env.BREVO_API_KEY,
   base_url_server: process.env.BASE_URL_SERVER,
   base_url_client: process.env.BASE_URL_CLIENT,
+  aws_access_key_id: process.env.AWS_ACCESS_KEY_ID,
+  aws_secret_access_key: process.env.AWS_SECRET_ACCESS_KEY,
+  aws_region: process.env.AWS_REGION,
+  aws_s3_bucket: process.env.AWS_S3_BUCKET,
   jwt: {
     access_secret: process.env.JWT_ACCESS_SECRET as Secret,
     access_expires_in: process.env.JWT_ACCESS_EXPIRES_IN as string,

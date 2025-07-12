@@ -3,6 +3,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import jwt from "jsonwebtoken";
 import config from "../../config";
 import { CirclesService } from "../modules/Circles/circles.service";
+import { FriendRequestService } from "../modules/FriendRequest/friendRequest.service";
 import prisma from "./prisma";
 let wss: WebSocketServer;
 
@@ -316,6 +317,178 @@ export const connectWebSocketServer = (server: Server) => {
             }, [userId]);
             return;
 
+          // Friend Request Cases
+          case "send-friend-request":
+            if (!data.receiverId) {
+              throw createError("Receiver ID required", "receiverId", 400);
+            }
+
+            try {
+              // This would typically be handled by the HTTP API, but we can notify via WebSocket
+              const receiver = await prisma.user.findUnique({
+                where: { id: data.receiverId },
+                select: { id: true, name: true, email: true }
+              });
+
+              if (!receiver) {
+                throw createError("Receiver not found", "receiverId", 404);
+              }
+
+              // Notify receiver about new friend request
+              notifyUser(data.receiverId, {
+                type: "friend-request-received",
+                data: {
+                  senderId: userId,
+                  senderEmail: userEmail,
+                  timestamp: new Date().toISOString()
+                }
+              });
+
+              ws.send(JSON.stringify({
+                type: "friend-request-sent",
+                success: true,
+                receiverId: data.receiverId,
+                timestamp: new Date().toISOString(),
+              }));
+            } catch (error) {
+              console.error("Friend request error:", error);
+              throw error;
+            }
+            return;
+
+          case "accept-friend-request":
+            if (!data.requestId) {
+              throw createError("Request ID required", "requestId", 400);
+            }
+
+            try {
+              const request = await prisma.friendRequest.findUnique({
+                where: { id: data.requestId },
+                include: {
+                  sender: {
+                    select: { id: true, name: true, email: true }
+                  }
+                }
+              });
+
+              if (!request) {
+                throw createError("Friend request not found", "requestId", 404);
+              }
+
+              if (request.receiverId !== userId) {
+                throw createError("Not authorized to accept this request", "requestId", 403);
+              }
+
+              // Notify sender about accepted request
+              notifyUser(request.senderId, {
+                type: "friend-request-accepted",
+                data: {
+                  requestId: data.requestId,
+                  receiverId: userId,
+                  receiverEmail: userEmail,
+                  timestamp: new Date().toISOString()
+                }
+              });
+
+              ws.send(JSON.stringify({
+                type: "friend-request-accepted",
+                success: true,
+                requestId: data.requestId,
+                timestamp: new Date().toISOString(),
+              }));
+            } catch (error) {
+              console.error("Accept friend request error:", error);
+              throw error;
+            }
+            return;
+
+          case "reject-friend-request":
+            if (!data.requestId) {
+              throw createError("Request ID required", "requestId", 400);
+            }
+
+            try {
+              const request = await prisma.friendRequest.findUnique({
+                where: { id: data.requestId },
+                include: {
+                  sender: {
+                    select: { id: true, name: true, email: true }
+                  }
+                }
+              });
+
+              if (!request) {
+                throw createError("Friend request not found", "requestId", 404);
+              }
+
+              if (request.receiverId !== userId) {
+                throw createError("Not authorized to reject this request", "requestId", 403);
+              }
+
+              // Notify sender about rejected request
+              notifyUser(request.senderId, {
+                type: "friend-request-rejected",
+                data: {
+                  requestId: data.requestId,
+                  receiverId: userId,
+                  receiverEmail: userEmail,
+                  timestamp: new Date().toISOString()
+                }
+              });
+
+              ws.send(JSON.stringify({
+                type: "friend-request-rejected",
+                success: true,
+                requestId: data.requestId,
+                timestamp: new Date().toISOString(),
+              }));
+            } catch (error) {
+              console.error("Reject friend request error:", error);
+              throw error;
+            }
+            return;
+
+          case "remove-friend":
+            if (!data.friendId) {
+              throw createError("Friend ID required", "friendId", 400);
+            }
+
+            try {
+              const friendship = await prisma.friendship.findFirst({
+                where: {
+                  OR: [
+                    { userId1: userId, userId2: data.friendId },
+                    { userId1: data.friendId, userId2: userId }
+                  ]
+                }
+              });
+
+              if (!friendship) {
+                throw createError("Friendship not found", "friendId", 404);
+              }
+
+              // Notify friend about removal
+              notifyUser(data.friendId, {
+                type: "friend-removed",
+                data: {
+                  removedBy: userId,
+                  removedByEmail: userEmail,
+                  timestamp: new Date().toISOString()
+                }
+              });
+
+              ws.send(JSON.stringify({
+                type: "friend-removed",
+                success: true,
+                friendId: data.friendId,
+                timestamp: new Date().toISOString(),
+              }));
+            } catch (error) {
+              console.error("Remove friend error:", error);
+              throw error;
+            }
+            return;
+
           default:
             throw createError(
               "Invalid message type",
@@ -402,6 +575,38 @@ const broadcastToCircle = (circleId: string, message: any, excludeUsers: string[
       }
     });
   }
+};
+
+// Helper function to notify a specific user
+const notifyUser = (userId: string, message: any) => {
+  const session = activeSessions.get(userId);
+  if (session && session.ws.readyState === WebSocket.OPEN) {
+    session.ws.send(JSON.stringify(message));
+  }
+};
+
+// Export function to send friend request notifications from HTTP API
+export const sendFriendRequestNotification = (receiverId: string, senderId: string, requestData: any) => {
+  notifyUser(receiverId, {
+    type: "friend-request-received",
+    data: {
+      ...requestData,
+      senderId,
+      timestamp: new Date().toISOString()
+    }
+  });
+};
+
+// Export function to send friend request status updates from HTTP API
+export const sendFriendRequestStatusUpdate = (senderId: string, receiverId: string, status: string, requestData: any) => {
+  notifyUser(senderId, {
+    type: `friend-request-${status.toLowerCase()}`,
+    data: {
+      ...requestData,
+      receiverId,
+      timestamp: new Date().toISOString()
+    }
+  });
 };
 
 export const getWebSocketServer = () => wss; 
